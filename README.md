@@ -39,9 +39,8 @@ Before we can launch, we at least need to be able to view and add new treats. Fi
 Our client will be ecstatic if we can also deliver the ability to update and delete, but consider these "nice-to-haves".
 
 * `PUT /treats/:id` updates the treat description
-* `DELETE /treats/:id` deletes a treat
 
 ### Eye of the Tiger (Pro Mode)
 **If you're feeling fancy and have some time to spare**, try this one
 
-* `GET /treats?q=donut` should return only treats that match the query parameter
+* `DELETE /treats/:id` deletes a treat
