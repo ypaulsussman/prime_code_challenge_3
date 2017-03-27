@@ -15,12 +15,11 @@ var pool = new pg.Pool(config);
 router.get('/', function (req, res) {
   pool.connect(function (err, client, done) {
     if (err) {
-      console.log('Error connecting to the DB', err);
       res.sendStatus(500);
       done();
       return;
     } else {
-      client.query('SELECT "name", "description", "pic" from "treats";',
+      client.query('SELECT * from "treats";',
       function(queryError, result) {
         done();
         if (queryError) {
@@ -56,10 +55,6 @@ router.post('/', function(req, res) {
 
 // PUT /treats/<id>
 router.put('/:id', function(req, res) {
-  console.log(req.body);
-  //NOTE:On my machine, the below line prints the value of property "id" as "undefined."
-        //Not sure why that is, or how to remedy it on the server side.
-  console.log(req.params);
   var id = req.params.id;
   var name = req.body.name;
   var description = req.body.description;
@@ -68,10 +63,9 @@ router.put('/:id', function(req, res) {
     if (err) {
       res.sendStatus(500);
     } else {
-      console.log('connection is working');
       client.query('UPDATE "treats" SET "name" = $2, "description" = $3, "pic" = $4 WHERE "id" = $1;',
       [id, name, description, pic],
-      function(queryError, result) { done(); if (queryError) { res.sendStatus(500); } else { console.log("at least the delete call is working"); res.sendStatus(201); }
+      function(queryError, result) { done(); if (queryError) { res.sendStatus(500); } else { res.sendStatus(201); }
       });
     }
   });
@@ -87,7 +81,7 @@ router.delete('/:id', function(req, res) {
       res.sendStatus(500);
     } else {
       client.query('DELETE FROM "treats" WHERE "id" = $1;', [delTreat],
-      function(queryError, result) { done(); if (queryError) { res.sendStatus(500); } else { console.log("at least the delete call is working");res.sendStatus(201); }
+      function(queryError, result) { done(); if (queryError) { res.sendStatus(500); } else { res.sendStatus(201); }
       });
     }
   });
