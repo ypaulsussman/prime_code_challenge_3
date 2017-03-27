@@ -3,7 +3,7 @@ var router = express.Router();
 var pg = require("pg");
 
 var config = {
-  database: "chi", // name of your database
+  database: "treatDB", // name of your database
   host: "localhost", //where is your database?
   port: 5432, // port for the database
   max: 10, // how many connections at one time
@@ -19,8 +19,18 @@ router.get('/', function (req, res) {
       res.sendStatus(500);
       done();
       return;
+    } else {
+      client.query('SELECT "name", "description", "pic" from "treats";',
+      function(queryError, result) {
+        done();
+        if (queryError) {
+          res.sendStatus(500);
+        } else {
+          res.send(result.rows);
+        }
+      });
     }
-    /** ---- YOUR CODE BELOW ---- **/
+    /** ---- YOUR CODE ABOVE ---- **/
     // Add pg and pSQL code here to get treats from the treatDB
   });
 });
@@ -28,10 +38,63 @@ router.get('/', function (req, res) {
 /** ---- YOUR CODE BELOW ---- **/
 
 // POST /treats
+router.post('/', function(req, res) {
+  var name = req.body.name;
+  var description = req.body.description;
+  var pic = req.body.pic;
+  pool.connect(function(err, client, done) {
+    if (err) {
+      res.sendStatus(500);
+    } else {
+      client.query('INSERT INTO "treats" ("name", "description", "pic") VALUES ($1,$2,$3);',
+      [name, description, pic],
+      function(queryError, result) { done(); if (queryError) { res.sendStatus(500); } else { res.sendStatus(201); }
+      });
+    }
+  });
+});
 
 // PUT /treats/<id>
+router.put('/:id', function(req, res) {
+  console.log(req.body);
+  //NOTE:On my machine, the below line prints the value of property "id" as "undefined."
+        //Not sure why that is, or how to remedy it on the server side.
+  console.log(req.params);
+  var id = req.params.id;
+  var name = req.body.name;
+  var description = req.body.description;
+  var pic = req.body.pic;
+  pool.connect(function(err, client, done) {
+    if (err) {
+      res.sendStatus(500);
+    } else {
+      console.log('connection is working');
+      client.query('UPDATE "treats" SET "name" = $2, "description" = $3, "pic" = $4 WHERE "id" = $1;',
+      [id, name, description, pic],
+      function(queryError, result) { done(); if (queryError) { res.sendStatus(500); } else { console.log("at least the delete call is working"); res.sendStatus(201); }
+      });
+    }
+  });
+});
 
 // DELETE /treats/<id>
+router.delete('/:id', function(req, res) {
+  //NOTE: Same issue here as in the PUT request above. What am I missing???
+  console.log(req.params);
+  var delTreat = req.params.id;
+  pool.connect(function(err, client, done) {
+    if (err) {
+      res.sendStatus(500);
+    } else {
+      client.query('DELETE FROM "treats" WHERE "id" = $1;', [delTreat],
+      function(queryError, result) { done(); if (queryError) { res.sendStatus(500); } else { console.log("at least the delete call is working");res.sendStatus(201); }
+      });
+    }
+  });
+});
+
+
+
 
 /** ---- DO NOT MODIFY BELOW ---- **/
 module.exports = router;
